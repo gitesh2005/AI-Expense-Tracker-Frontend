@@ -409,3 +409,25 @@ body {
 .archive-diff.down {
   color: #4CAF50;
 }
+
+.archive-card {
+  position: relative;
+}
+
+.archive-delete-btn {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  background: transparent;
+  border: none;
+  color: #ff6b6b;
+  cursor: pointer;
+  font-size: 0.9rem;
+  padding: 4px 6px;
+  border-radius: 50%;
+  transition: background 0.15s;
+}
+
+.archive-delete-btn:hover {
+  background-color: rgba(255, 107, 107, 0.2);
+}

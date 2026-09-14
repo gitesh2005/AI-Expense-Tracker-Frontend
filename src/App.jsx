@@ -2,9 +2,24 @@ import { useState, useEffect, useRef } from 'react';
 
 import api from './api/axiosConfig';
 import './App.css';
-import { PieChart, Pie, Cell, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import {
+  PieChart,
+  Pie,
+  Cell,
+  Tooltip,
+  Legend,
+  ResponsiveContainer
+} from 'recharts';
 
-const COLORS = ['#4CAF50', '#2196F3', '#FF9800', '#E91E63', '#9C27B0', '#00BCD4', '#795548'];
+const COLORS = [
+  '#4CAF50',
+  '#2196F3',
+  '#FF9800',
+  '#E91E63',
+  '#9C27B0',
+  '#00BCD4',
+  '#795548'
+];
 
 const CATEGORIES = [
   'Food',
@@ -41,6 +56,7 @@ function App() {
 
     if (SpeechRecognition) {
       const recognition = new SpeechRecognition();
+
       recognition.continuous = false;
       recognition.lang = 'en-IN';
       recognition.interimResults = false;
@@ -59,19 +75,29 @@ function App() {
 
   const fetchExpenses = () => {
     api.get('/expenses')
-      .then((res) => setExpenses(res.data))
-      .catch((err) => console.error('Failed to fetch expenses', err));
+      .then((res) => {
+        setExpenses(res.data);
+      })
+      .catch((err) => {
+        console.error('Failed to fetch expenses', err);
+      });
   };
 
   const fetchArchives = () => {
     api.get('/expenses/archives')
-      .then((res) => setArchives(res.data))
-      .catch((err) => console.error('Failed to fetch archives', err));
+      .then((res) => {
+        setArchives(res.data);
+      })
+      .catch((err) => {
+        console.error('Failed to fetch archives', err);
+      });
   };
 
   const handleMicClick = () => {
     if (!recognitionRef.current) {
-      alert('Voice input is not supported in this browser. Try Chrome.');
+      alert(
+        'Voice input is not supported in this browser. Try Chrome.'
+      );
       return;
     }
 
@@ -82,7 +108,9 @@ function App() {
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    if (!description || !amount) return;
+    if (!description || !amount) {
+      return;
+    }
 
     setSubmitting(true);
     setError(null);
@@ -106,14 +134,34 @@ function App() {
 
   const handleDelete = (id) => {
     api.delete(`/expenses/${id}`)
-      .then(() => fetchExpenses())
-      .catch((err) => console.error('Failed to delete expense', err));
+      .then(() => {
+        fetchExpenses();
+      })
+      .catch((err) => {
+        console.error('Failed to delete expense', err);
+      });
+  };
+
+  const handleDeleteArchive = (id) => {
+    if (!window.confirm('Delete this monthly record permanently?')) {
+      return;
+    }
+
+    api.delete(`/expenses/archives/${id}`)
+      .then(() => {
+        fetchArchives();
+      })
+      .catch((err) => {
+        console.error('Failed to delete archive', err);
+      });
   };
 
   const handleScreenshotUpload = (e) => {
     const file = e.target.files[0];
 
-    if (!file) return;
+    if (!file) {
+      return;
+    }
 
     setUploadingScreenshot(true);
     setError(null);
@@ -131,7 +179,9 @@ function App() {
         fetchExpenses();
       })
       .catch((err) => {
-        setError('Failed to read screenshot. Try again or add manually.');
+        setError(
+          'Failed to read screenshot. Try again or add manually.'
+        );
         setUploadingScreenshot(false);
         console.error(err);
       });
@@ -140,12 +190,16 @@ function App() {
   };
 
   const handleCategoryChange = (id, newCategory) => {
-    api.put(`/expenses/${id}/category`, { category: newCategory })
+    api.put(`/expenses/${id}/category`, {
+      category: newCategory
+    })
       .then(() => {
         setEditingCategoryId(null);
         fetchExpenses();
       })
-      .catch((err) => console.error('Failed to update category', err));
+      .catch((err) => {
+        console.error('Failed to update category', err);
+      });
   };
 
   const handleClearAll = () => {
@@ -163,15 +217,22 @@ function App() {
         fetchArchives();
         setSuggestion('');
       })
-      .catch((err) => console.error('Failed to clear expenses', err));
+      .catch((err) => {
+        console.error('Failed to clear expenses', err);
+      });
   };
 
   const handleExport = () => {
     setExporting(true);
 
-    api.get('/expenses/export', { responseType: 'blob' })
+    api.get('/expenses/export', {
+      responseType: 'blob'
+    })
       .then((res) => {
-        const url = window.URL.createObjectURL(new Blob([res.data]));
+        const url = window.URL.createObjectURL(
+          new Blob([res.data])
+        );
+
         const link = document.createElement('a');
 
         link.href = url;
@@ -183,6 +244,8 @@ function App() {
         document.body.appendChild(link);
         link.click();
         link.remove();
+
+        window.URL.revokeObjectURL(url);
 
         setExporting(false);
       })
@@ -208,14 +271,20 @@ function App() {
 
   const categoryTotals = expenses.reduce((acc, exp) => {
     const cat = exp.category || 'Other';
-    acc[cat] = (acc[cat] || 0) + parseFloat(exp.amount);
+
+    acc[cat] =
+      (acc[cat] || 0) +
+      parseFloat(exp.amount);
+
     return acc;
   }, {});
 
-  const chartData = Object.entries(categoryTotals).map(([name, value]) => ({
-    name,
-    value
-  }));
+  const chartData = Object.entries(categoryTotals).map(
+    ([name, value]) => ({
+      name,
+      value
+    })
+  );
 
   const totalSpent = expenses.reduce(
     (sum, exp) => sum + parseFloat(exp.amount),
@@ -224,60 +293,90 @@ function App() {
 
   return (
     <div className="app-container">
+
       <header className="header">
         <h1>💰 AI Expense Tracker</h1>
-        <p className="subtitle">Just type or speak — AI sorts it out</p>
+
+        <p className="subtitle">
+          Just type or speak — AI sorts it out
+        </p>
       </header>
 
       <div className="total-card">
         <div>
-          <span className="total-label">Total Spent</span>
-          <span className="total-value">₹{totalSpent.toFixed(2)}</span>
+          <span className="total-label">
+            Total Spent
+          </span>
+
+          <span className="total-value">
+            ₹{totalSpent.toFixed(2)}
+          </span>
         </div>
 
         <div className="header-actions">
+
           <button
             className="export-btn"
             onClick={handleExport}
-            disabled={exporting || expenses.length === 0}
+            disabled={
+              exporting ||
+              expenses.length === 0
+            }
           >
-            {exporting ? 'Exporting...' : '📊 Export Excel'}
+            {exporting
+              ? 'Exporting...'
+              : '📊 Export Excel'}
           </button>
 
           <button
             className="clear-btn"
             onClick={handleClearAll}
-            disabled={expenses.length === 0}
+            disabled={
+              expenses.length === 0
+            }
           >
             🗑️ Clear All
           </button>
+
         </div>
       </div>
 
-      <form onSubmit={handleSubmit} className="expense-form">
+      <form
+        onSubmit={handleSubmit}
+        className="expense-form"
+      >
+
         <div className="input-with-mic">
+
           <input
             type="text"
             placeholder="What did you spend on?"
             value={description}
-            onChange={(e) => setDescription(e.target.value)}
+            onChange={(e) =>
+              setDescription(e.target.value)
+            }
           />
 
           <button
             type="button"
-            className={`mic-btn ${isListening ? 'listening' : ''}`}
+            className={`mic-btn ${
+              isListening ? 'listening' : ''
+            }`}
             onClick={handleMicClick}
             title="Speak your expense"
           >
             {isListening ? '🔴' : '🎤'}
           </button>
+
         </div>
 
         <input
           type="number"
           placeholder="Amount"
           value={amount}
-          onChange={(e) => setAmount(e.target.value)}
+          onChange={(e) =>
+            setAmount(e.target.value)
+          }
         />
 
         <button
@@ -285,11 +384,16 @@ function App() {
           className="add-btn"
           disabled={submitting}
         >
-          {submitting ? 'Categorizing...' : 'Add Expense'}
+          {submitting
+            ? 'Categorizing...'
+            : 'Add Expense'}
         </button>
 
         <label className="upload-btn">
-          {uploadingScreenshot ? '📤 Reading...' : '📸 Upload Screenshot'}
+
+          {uploadingScreenshot
+            ? '📤 Reading...'
+            : '📸 Upload Screenshot'}
 
           <input
             type="file"
@@ -298,10 +402,16 @@ function App() {
             disabled={uploadingScreenshot}
             style={{ display: 'none' }}
           />
+
         </label>
+
       </form>
 
-      {error && <p className="error-text">{error}</p>}
+      {error && (
+        <p className="error-text">
+          {error}
+        </p>
+      )}
 
       {isListening && (
         <p className="listening-text">
@@ -310,10 +420,14 @@ function App() {
       )}
 
       <div className="suggestion-section">
+
         <button
           className="suggestion-btn"
           onClick={handleGetSuggestion}
-          disabled={loadingSuggestion || expenses.length === 0}
+          disabled={
+            loadingSuggestion ||
+            expenses.length === 0
+          }
         >
           {loadingSuggestion
             ? 'Analyzing your spending...'
@@ -325,21 +439,39 @@ function App() {
             <p>{suggestion}</p>
           </div>
         )}
+
       </div>
 
       <div className="content-section">
+
         <div className="chart-box">
-          <h2>Spending by Category</h2>
+
+          <h2>
+            Spending by Category
+          </h2>
 
           {chartData.length === 0 ? (
+
             <p className="empty-text">
-              No expenses yet. Add one to see the breakdown.
+              No expenses yet. Add one to see
+              the breakdown.
             </p>
+
           ) : (
-            <ResponsiveContainer width="100%" height={300}>
+
+            <ResponsiveContainer
+              width="100%"
+              height={300}
+            >
               <PieChart
-                margin={{ top: 20, right: 40, bottom: 20, left: 40 }}
+                margin={{
+                  top: 20,
+                  right: 40,
+                  bottom: 20,
+                  left: 40
+                }}
               >
+
                 <Pie
                   data={chartData}
                   dataKey="value"
@@ -350,122 +482,234 @@ function App() {
                   outerRadius={100}
                   paddingAngle={3}
                   label={({ percent }) =>
-                    `${(percent * 100).toFixed(0)}%`
+                    `${(
+                      percent * 100
+                    ).toFixed(0)}%`
                   }
                 >
-                  {chartData.map((entry, index) => (
-                    <Cell
-                      key={index}
-                      fill={COLORS[index % COLORS.length]}
-                    />
-                  ))}
+
+                  {chartData.map(
+                    (entry, index) => (
+                      <Cell
+                        key={index}
+                        fill={
+                          COLORS[
+                            index %
+                              COLORS.length
+                          ]
+                        }
+                      />
+                    )
+                  )}
+
                 </Pie>
 
-                <Tooltip formatter={(value) => `₹${value}`} />
+                <Tooltip
+                  formatter={(value) =>
+                    `₹${value}`
+                  }
+                />
+
                 <Legend />
+
               </PieChart>
             </ResponsiveContainer>
+
           )}
+
         </div>
 
         <div className="list-box">
-          <h2>Recent Expenses</h2>
+
+          <h2>
+            Recent Expenses
+          </h2>
 
           <ul className="expense-list">
-            {[...expenses].reverse().map((exp) => (
-              <li key={exp.id} className="expense-item">
-                <div className="exp-left">
-                  <span className="exp-desc">
-                    {exp.description}
-                  </span>
 
-                  {editingCategoryId === exp.id ? (
-                    <select
-                      className="category-select"
-                      value={exp.category}
-                      onChange={(e) =>
-                        handleCategoryChange(exp.id, e.target.value)
-                      }
-                      onBlur={() => setEditingCategoryId(null)}
-                      autoFocus
-                    >
-                      {CATEGORIES.map((cat) => (
-                        <option key={cat} value={cat}>
-                          {cat}
-                        </option>
-                      ))}
-                    </select>
-                  ) : (
-                    <span
-                      className={`exp-category cat-${(
-                        exp.category || 'other'
-                      ).toLowerCase()}`}
-                      onClick={() => setEditingCategoryId(exp.id)}
-                      title="Click to change category"
-                    >
-                      {exp.category} ✎
+            {[...expenses]
+              .reverse()
+              .map((exp) => (
+
+                <li
+                  key={exp.id}
+                  className="expense-item"
+                >
+
+                  <div className="exp-left">
+
+                    <span className="exp-desc">
+                      {exp.description}
                     </span>
-                  )}
-                </div>
 
-                <div className="exp-right">
-                  <span className="exp-amount">
-                    ₹{exp.amount}
-                  </span>
+                    {editingCategoryId === exp.id ? (
 
-                  <button
-                    className="delete-btn"
-                    onClick={() => handleDelete(exp.id)}
-                    title="Delete"
-                  >
-                    ✕
-                  </button>
-                </div>
-              </li>
-            ))}
+                      <select
+                        className="category-select"
+                        value={exp.category}
+                        onChange={(e) =>
+                          handleCategoryChange(
+                            exp.id,
+                            e.target.value
+                          )
+                        }
+                        onBlur={() =>
+                          setEditingCategoryId(null)
+                        }
+                        autoFocus
+                      >
+
+                        {CATEGORIES.map(
+                          (cat) => (
+                            <option
+                              key={cat}
+                              value={cat}
+                            >
+                              {cat}
+                            </option>
+                          )
+                        )}
+
+                      </select>
+
+                    ) : (
+
+                      <span
+                        className={`exp-category cat-${(
+                          exp.category ||
+                          'other'
+                        ).toLowerCase()}`}
+                        onClick={() =>
+                          setEditingCategoryId(
+                            exp.id
+                          )
+                        }
+                        title="Click to change category"
+                      >
+                        {exp.category} ✎
+                      </span>
+
+                    )}
+
+                  </div>
+
+                  <div className="exp-right">
+
+                    <span className="exp-amount">
+                      ₹{exp.amount}
+                    </span>
+
+                    <button
+                      className="delete-btn"
+                      onClick={() =>
+                        handleDelete(exp.id)
+                      }
+                      title="Delete"
+                    >
+                      ✕
+                    </button>
+
+                  </div>
+
+                </li>
+
+              ))}
+
           </ul>
+
         </div>
+
       </div>
 
       {archives.length > 0 && (
+
         <div className="archive-section">
-          <h2>Monthly History</h2>
+
+          <h2>
+            Monthly History
+          </h2>
 
           <div className="archive-cards">
-            {[...archives].reverse().map((arc, index) => {
-              const prevArchive = archives[archives.length - index - 2];
 
-              const diff = prevArchive
-                ? (
-                    ((arc.totalAmount - prevArchive.totalAmount) /
-                      prevArchive.totalAmount) *
-                    100
-                  ).toFixed(1)
-                : null;
+            {[...archives]
+              .reverse()
+              .map((arc, index) => {
 
-              return (
-                <div key={arc.id} className="archive-card">
-                  <h3>{arc.monthLabel}</h3>
+                const prevArchive =
+                  archives[
+                    archives.length -
+                      index -
+                      2
+                  ];
 
-                  <p className="archive-total">
-                    ₹{arc.totalAmount}
-                  </p>
+                const diff = prevArchive
+                  ? (
+                      (
+                        (
+                          arc.totalAmount -
+                          prevArchive.totalAmount
+                        ) /
+                        prevArchive.totalAmount
+                      ) * 100
+                    ).toFixed(1)
+                  : null;
 
-                  {diff !== null && (
-                    <p
-                      className={`archive-diff ${
-                        diff > 0 ? 'up' : 'down'
-                      }`}
+                return (
+
+                  <div
+                    key={arc.id}
+                    className="archive-card"
+                  >
+
+                    <button
+                      className="archive-delete-btn"
+                      onClick={() =>
+                        handleDeleteArchive(
+                          arc.id
+                        )
+                      }
+                      title="Delete this record"
                     >
-                      {diff > 0 ? '↑' : '↓'} {Math.abs(diff)}% vs previous month
+                      ✕
+                    </button>
+
+                    <h3>
+                      {arc.monthLabel}
+                    </h3>
+
+                    <p className="archive-total">
+                      ₹{arc.totalAmount}
                     </p>
-                  )}
-                </div>
-              );
-            })}
+
+                    {diff !== null && (
+
+                      <p
+                        className={`archive-diff ${
+                          diff > 0
+                            ? 'up'
+                            : 'down'
+                        }`}
+                      >
+                        {diff > 0
+                          ? '↑'
+                          : '↓'}{' '}
+                        {Math.abs(diff)}%
+                        {' '}vs previous month
+                      </p>
+
+                    )}
+
+                  </div>
+
+                );
+              })}
+
           </div>
+
         </div>
+
       )}
+
     </div>
   );
 }
