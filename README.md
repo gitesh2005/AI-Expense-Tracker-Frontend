@@ -1,16 +1,55 @@
-# React + Vite
+# AI Expense Tracker — Frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+React frontend for the AI Expense Tracker — a full-stack app that eliminates manual expense entry using AI.
 
-Currently, two official plugins are available:
+🔗 **Live Demo:** [ai-expense-tracker-frontend.netlify.app](https://ai-expense-tracker-frontend.netlify.app)
+🔗 **Backend Repo:** [AI-Expense-Tracker](https://github.com/gitesh2005/AI-Expense-Tracker)
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+> Note: The backend runs on Render's free tier, so the first request after a period of inactivity may take 30–60 seconds to respond while the server wakes up.
 
-## React Compiler
+## Features
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- **AI auto-categorization** — type "swiggy order 350" and it's tagged "Food" automatically
+- **Voice input** — mic button uses the browser's Speech Recognition API to fill the description
+- **Screenshot/invoice upload** — upload a UPI payment confirmation or invoice; a vision AI model extracts the merchant and amount directly from the image
+- **Manual category override** — click any category badge to correct it when AI gets it wrong
+- **Spending breakdown** — donut chart of spending by category (Recharts)
+- **AI savings suggestions** — analyzes spending patterns and suggests where to cut back
+- **Excel export** — download all expenses as a formatted .xlsx file
+- **Monthly reset with history** — "Clear All" archives the month's totals before wiping, and a Monthly History view shows month-over-month % change
+- **Delete controls** — remove individual expenses or accidentally-created monthly archive records
 
-## Expanding the ESLint configuration
+## Tech Stack
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+- React (Vite)
+- Recharts (charts)
+- Axios (API calls)
+- Web Speech API (voice input)
+
+## Setup
+
+1. Clone this repo
+2. Install dependencies:
+```bash
+   npm install
+```
+3. Update the backend URL in `src/api/axiosConfig.js`:
+```js
+   const api = axios.create({
+     baseURL: 'http://localhost:8080/api', // or your deployed backend URL
+   });
+```
+4. Run the dev server:
+```bash
+   npm run dev
+```
+
+## Related Repo
+
+This is the frontend half of the project. The Spring Boot backend (REST API, MongoDB, AI integration) lives in a separate repo: [AI-Expense-Tracker](https://github.com/gitesh2005/AI-Expense-Tracker)
+
+## Future Scope
+
+- Native Android companion app for SMS-based automatic transaction detection
+- Multi-user support with authentication
+- Budget limits per category with alerts
