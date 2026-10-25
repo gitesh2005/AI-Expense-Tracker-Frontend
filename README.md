@@ -25,7 +25,16 @@ With these values, Vite proxies `/api` requests to the local Spring Boot API,
 so the browser does not need a separate local API origin. Change
 `VITE_DEV_API_PROXY_TARGET` if the backend uses another port. For a production
 build hosted separately from the API, set `VITE_API_BASE_URL` to the deployed
-backend URL ending in `/api` before running `npm run build`.
+backend URL ending in `/api` before running `npm run build`. The production
+fallback is currently configured for:
+
+```text
+https://ai-expense-tracker-ow9p.onrender.com/api
+```
+
+For Netlify, set `VITE_API_BASE_URL` to that same value in the site's build
+environment and trigger a new deploy. This keeps the deployment configuration
+explicit while allowing the checked-in build fallback to work.
 
 ## Supported receipt uploads
 

@@ -3,7 +3,10 @@ import axios from 'axios';
 import { clearStoredAuth, getStoredAuth } from './authStorage';
 
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE_URL?.trim() || '/api',
+  // Local development overrides this with /api so Vite can proxy to localhost.
+  // The deployed frontend can work even when its host has no build-time env var.
+  baseURL: import.meta.env.VITE_API_BASE_URL?.trim()
+    || 'https://ai-expense-tracker-ow9p.onrender.com/api',
 });
 
 api.interceptors.request.use((config) => {
